@@ -1,41 +1,33 @@
 # #include<stdio.h>   
 for IO e.g. printf(), scanf() functions
 ```cpp
-	printf("Character is %c \n", ch);
-	printf("String is %s \n" , str);
-	printf("Float value is %f \n", flt);
-	printf("Integer value is %d\n" , no);
-	printf("Double value is %lf \n", dbl);//lf = long float(double)
-	printf("Octal value is %o \n", no);
-	printf("Hexadecimal value is %x \n", no);
+printf("Character is %c \n", ch);
+printf("String is %s \n" , str);
+printf("Float value is %f \n", flt);
+printf("Integer value is %d\n" , no);
+printf("Double value is %lf \n", dbl);//lf = long float(double)
+printf("Octal value is %o \n", no);
+printf("Hexadecimal value is %x \n", no);
 ```
 ```cpp
-   int integer; 
-   char ch;
-   char str[100];
-   scanf("%d", &integer);//decimal
-   scanf("%c", &ch);
-   scanf("%s", &str);
+int integer; 
+char ch;
+char str[100];
+scanf("%d", &integer);//decimal
+scanf("%c", &ch);
+scanf("%s", &str);
 ```
 
 # #include<sys/types.h>
 This header file contains definitions to allow for the porting of BSD programs.
 
-<sys/types.h> must usually be included before other socket-related header files; refer to the individual header file descriptions that follow for the specific dependency.
+<sys/types.h> **must usually be included before other socket-related header files;** refer to the individual header file descriptions that follow for the specific dependency.
 
-This header file declares the following typedef names for use as abbreviations for three commonly used types:
-typedef unsigned u_char;
-u_char;
-
-typedef unsigned u_short;
-u_short;
-
-typedef unsigned u_long;
-u_long; .
 
 The following typedef name is commonly used for buffer pointers:
-
+```cpp
 typedef char * caddr_t;
+```
 This header file also defines the FD_SET , FD_ZERO , FD_CLR , FD_ISSET , and FD_SETSIZE macros used by select to manipulate socket descriptors. 
 
 e.g use by following macros: (here giving short list)

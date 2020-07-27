@@ -11,10 +11,12 @@
 #include<signal.h>
 #include <errno.h> //global errno displaying only, I am not using it for error check (can do problem in multithreading) 
 
-#define DEST_IP "192.168.100.24"
-#define DEST_PORT 4200
+#define _DEST_IP "192.168.100.24"
+#define _DEST_PORT 4200
 #define BufferSize 1000 //bytes either to recv() or send()
 
+unsigned short DEST_PORT;
+char *DEST_IP;
 int sockfd;
 
 
@@ -63,6 +65,15 @@ int main(int argc, char **argv){
 
 
   //putting dest values in sockaddr_in
+   if(argc == 3){
+    DEST_IP = argv[1];
+    DEST_PORT = atoi(argv[2]);//integer char array to integer
+  }
+  else{
+    DEST_IP = _DEST_IP;
+    DEST_PORT = _DEST_PORT;
+  }
+
   dest_addr.sin_family = AF_INET;
   dest_addr.sin_port = htons(DEST_PORT);
   dest_addr.sin_addr.s_addr = inet_addr(DEST_IP);

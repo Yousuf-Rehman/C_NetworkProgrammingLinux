@@ -12,13 +12,19 @@
 #include <errno.h> //global errno displaying only, I am not using it for error check (can do problem in multithreading) 
 
 
-#define MYPORT 4200
-#define MyIP "192.168.100.24"
-#define BACKLOG 10 //Max Client can connect
-#define BufferSize 1000 //bytes either to recv() or send()
+#define _MYPORT 4200
+#define _MyIP "192.168.100.24"
+//Max Client can connect
+#define BACKLOG 10
+//bytes either to recv() or send()
+#define BufferSize 1000
+
+unsigned short MYPORT;
+char *MyIP;
 
 int sockfd;//socket file descriptor
 int new_fd;
+
 /* Signal Handler for SIGINT */
 void sigintHandler(int sig_num) 
 { 
@@ -69,7 +75,8 @@ int main(int argc, char **argv){
   printf("\n.......SERVER.........\n");
   int ManualErrorCheck; //for safety, check only the return value of function
   struct sockaddr_in server_addr;
-  
+  MyIP = (char *) malloc(4*sizeof(char));
+
   //getting socket
   printf("Creating Socket....\n");
   ManualErrorCheck = sockfd = socket(PF_INET, SOCK_STREAM, 0);
@@ -82,13 +89,22 @@ int main(int argc, char **argv){
   
   
   //putting values in sockaddr_in
+  if(argc == 3){
+    MyIP = argv[1];
+    MYPORT = atoi(argv[2]);//integer char array to integer
+  }
+  else{
+    MyIP = _MyIP;
+    MYPORT = _MYPORT;
+  }
+
   server_addr.sin_family = AF_INET;
-  server_addr.sin_port = htons(MYPORT);
   server_addr.sin_addr.s_addr = inet_addr(MyIP);
+  server_addr.sin_port = htons(MYPORT);
   memset(&server_addr.sin_zero, '\0', 8);//zero all values
   
-  
-  printf("Binding Port = %d\n", MYPORT); 
+  //Binding
+  printf("Binding IP = %s with Port = %d\n", MyIP, MYPORT); 
   ManualErrorCheck = bind(sockfd,(struct sockaddr*)&server_addr,sizeof(struct sockaddr));
   if(ManualErrorCheck < 0 ){
     perror("bind error!!\n");
