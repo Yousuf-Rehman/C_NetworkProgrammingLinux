@@ -1,4 +1,4 @@
-#include<stdio.h>   //printf
+#include<stdio.h>   //printf, scanf
 #include<sys/types.h>
 #include<sys/socket.h>
 #include<netinet/in.h>
@@ -9,24 +9,26 @@
 #include<unistd.h> //for close
 #include<time.h> //To use time library of C
 #include<signal.h>
+#include <errno.h> //global errno displaying only, I am not using it for error check (can do problem in multithreading) 
 
 
 #define MYPORT 4200
-#define MyIP "192.168.10.21"
-#define BACKLOG 10
+#define MyIP "192.168.100.24"
+#define BACKLOG 10 //Max Client can connect
+#define BufferSize 1000 //bytes either to recv() or send()
 
 int sockfd;//socket file descriptor
 int new_fd;
 /* Signal Handler for SIGINT */
 void sigintHandler(int sig_num) 
 { 
-  /* Reset handler to catch SIGINT next time. SIGINT when ctrl+c pressed*/
+  /* Reset handler to catch SIGINT next time again. SIGINT when ctrl+c pressed*/
   signal(SIGINT, sigintHandler);
   printf("\nYou have pressed Ctrl+c, safe shutting down server!!!\n"); 
   fflush(stdout);
   close(new_fd);
   close(sockfd);
-  exit(0);
+  exit(EXIT_SUCCESS); //No error encountered while running progEXIT_SUCCESS = 0
 } 
 
 void delay(int milli_seconds) 
@@ -37,23 +39,46 @@ void delay(int milli_seconds)
   while (clock() < start_time + milli_seconds) ; 
 } 
 
+int listenAndAccept(struct sockaddr_in *client_addr, int *sin_size){
+  int ManualErrorCheck; //for safety, check only the return value of function
 
+  ManualErrorCheck = listen(sockfd, BACKLOG); //wait here until get connection
+  if(ManualErrorCheck < 0){
+    perror("\nlisten error\n");
+    printf("error value: %d\n", errno); 
+    return ManualErrorCheck;
+  }
+  else
+    printf("Listening to Port = %d\n", MYPORT);
 
-int main(int argc, char *argv[]){
+  ManualErrorCheck = new_fd = accept(sockfd,(struct sockaddr*)client_addr, sin_size);
+
+  if(ManualErrorCheck < 0){
+    perror("\naccept error\n");
+    printf("error value: %d\n", errno); 
+    return ManualErrorCheck;//Only EXIT_FAILURE is the standard value for returning unsuccessful termination. It means there must be an error EXIT_FAILURE = 1
+  }
+  else 
+    printf("Connection Accepted from  IP = %s, Port = %d\n", inet_ntoa(client_addr->sin_addr), client_addr->sin_port);
+  
+  return new_fd;
+}
+
+int main(int argc, char **argv){
   signal(SIGINT, sigintHandler);
   printf("\n.......SERVER.........\n");
-  int error;
+  int ManualErrorCheck; //for safety, check only the return value of function
   struct sockaddr_in server_addr;
   
   //getting socket
   printf("Creating Socket....\n");
-  sockfd = socket(AF_INET, SOCK_STREAM,0);
-  if(sockfd == -1){
-    printf("socket creation failed...\n");
-    exit(0);
+  ManualErrorCheck = sockfd = socket(PF_INET, SOCK_STREAM, 0);
+  if(ManualErrorCheck < 0){
+    perror("socket creation failed...\n");
+    exit(EXIT_FAILURE);
   }
   else
-    printf("Socket successfully created..\n");
+    printf("socket successfully created..\n");
   
   
   //putting values in sockaddr_in
@@ -64,54 +89,41 @@ int main(int argc, char *argv[]){
   
   
   printf("Binding Port = %d\n", MYPORT); 
-  error = bind(sockfd,(struct sockaddr*)&server_addr,sizeof(struct sockaddr));
-  if(error == -1){
-    printf("bind error!!\n");
-    exit(0);
+  ManualErrorCheck = bind(sockfd,(struct sockaddr*)&server_addr,sizeof(struct sockaddr));
+  if(ManualErrorCheck < 0 ){
+    perror("bind error!!\n");
+    printf("error value: %d\n", errno); 
+    exit(EXIT_FAILURE);
   }
-  
-  
-  
-  error = listen(sockfd, BACKLOG);
-  if(error == -1){
-    printf("\nlisten error\n");
-  }
-  else
-    printf("Listening to Port = %d\n", MYPORT);
-
   
   struct sockaddr_in client_addr;
   int sin_size = sizeof(struct sockaddr);
+  
+  listenAndAccept(&client_addr, &sin_size);
 
-  new_fd = accept(sockfd,(struct sockaddr*)&client_addr, &sin_size);
-
-  if(new_fd == -1){
-    printf("\naccept error\n");
-  }
-  else 
-    printf("Connection Accepted from  IP = %s, Port = %d\n", inet_ntoa(client_addr.sin_addr), client_addr.sin_port);
-
-  int ByteRecv = 20;
-  char *rcvMsg = (char *)malloc(ByteRecv*sizeof(char));
+  int ByteRecv;
+  char *rcvMsg = (char *)malloc(BufferSize*sizeof(char));
   
   while(1){
-    ByteRecv = 20;
+    ByteRecv = 0;
     *rcvMsg = '\0';
-    ByteRecv =  recv(new_fd, rcvMsg, ByteRecv, 0);
-    
+    ByteRecv = recv(new_fd, rcvMsg, BufferSize, 0);//wait until receive data, not set global errno if nobyte recvd
+    //only return error or bytes received
+    rcvMsg[ByteRecv] = '\0'; //in case old data also present will not be processed
     if(ByteRecv > 0){
       printf("\nMsg = %s\n", rcvMsg);
       printf("ByteReceived = %d bytes\n", ByteRecv);
-      
+
       if(!strcmp(rcvMsg, "end")){
         printf("\nshutting down...\n");
         break;
       }
 
     }
-    
-    else if(ByteRecv == -1){
-      printf("\nConnection Lost....\n");
+    else if(ByteRecv <= 0){//connectioLost == 0, return error == -1
+      printf("\nConnection lost...\n");
+      printf("\nListening Again.....Server Should Never be down :) \n");
+      listenAndAccept(&client_addr, &sin_size);
     }
     
     delay(100);//wait 100ms
