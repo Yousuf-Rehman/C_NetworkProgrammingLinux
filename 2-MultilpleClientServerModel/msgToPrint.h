@@ -1,0 +1,38 @@
+#define MSG_ENTER_SERVER_IP "Enter SERVER IP: "
+#define MSG_ENTER_SERVER_PORT "Enter SERVER PORT: "
+#define MSG_ENTER_TalkTo_IP "Enter TalkTo IP: "
+#define MSG_ENTER_TalkTo_PORT "Enter TalkTo PORT: "
+
+#define MSG_CLIENT_TITLE "\n.......CLIENT.........\n"
+#define MSG_SERVER_TITLE "\n.......SERVER.........\n"
+
+//socket
+#define MSG_SOCKET_FAILED "\nSocket Creation Failed!\n"
+#define MSG_SOCKET_SUCC "Socket successfully created!\n"
+
+//connection
+#define MSG_CONN_FAILED "\nConnection Failed!\n"
+#define MSG_CONN_LOST "\nConnection Lost!\n"
+#define MSG_TRY_CONNECTING "\nTry Connecting....\n"
+#define MSG_CONNECTED_SUCC "\nConnected Successfully!\n"
+#define MSG_CONN_LOST_SPECIFIC_USER "\nConnection Lost! IP:%s , PORT=%d\n"
+//BIND
+#define MSG_BIND_FAILED "\nBind Failed!\n"
+#define MSG_BIND_SUCC "\nBind Successfully!\n"
+
+//LISTEN
+#define MSG_LISTEN_FAILED "\nLISTENING Failed!\n"
+#define MSG_LISTENING_TO "Listening to Port = %d\n"
+
+//Accept
+#define MSG_ACCEPT_FAILED "\nConnection Accept Failed!\n"
+#define MSG_ACCEPT_SUCC "\nConnection Accepted of IP = %s, Port = %d\n"
+//shutdown
+#define MSG_PRESSED_CTRL_C "\nYou have pressed Ctrl+c, safely shutting down!!!\n"
+#define MSG_BROKEN_PIPE_NO_READER "\nBroken pipe: write to pipe with no readers, means other host is gone, safely shutting down!!!\n"
+#define MSG_SHUTTING_DOWN "\n...........shutting down..........\n"
+
+//Ack and code to sen by client whom he want to talk
+#define ACK_For_TalkTo "${100001}"
+
+#define MSG_TOTAL_CONN "\nCurrent Total Connections: %d\n"
