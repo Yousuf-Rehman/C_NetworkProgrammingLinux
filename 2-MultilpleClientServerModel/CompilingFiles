@@ -1,0 +1,7 @@
+#!/bin/bash
+
+Client_FILES=$(ls *.c | grep -v server.c)
+Server_FILES=$(ls *.c | grep -v client.c)
+
+gcc $Client_FILES -pthread -o client
+gcc $Server_FILES -pthread -o server
